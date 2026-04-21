@@ -1,0 +1,599 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{max-width:700px;margin:0 auto;padding:1rem 0;font-family:var(--font-sans)}
+.nav{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--color-background-secondary);padding:4px;border-radius:var(--border-radius-lg)}
+.nav button{flex:1;padding:7px 4px;border:none;background:transparent;cursor:pointer;border-radius:8px;font-size:12px;color:var(--color-text-secondary);transition:all 0.15s}
+.nav button.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border:0.5px solid var(--color-border-tertiary)}
+.section{display:none}.section.active{display:block}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.25rem}
+.mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.mc .lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.mc .val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.mc .sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.mc.highlight{background:#EEEDFE}.mc.highlight .val{color:#3C3489}.mc.highlight .lbl{color:#534AB7}.mc.highlight .sub{color:#7F77DD}
+.mc.green{background:#E1F5EE}.mc.green .val{color:#085041}.mc.green .lbl{color:#0F6E56}.mc.green .sub{color:#1D9E75}
+.mc.amber{background:#FAEEDA}.mc.amber .val{color:#633806}.mc.amber .lbl{color:#854F0B}.mc.amber .sub{color:#BA7517}
+@media(prefers-color-scheme:dark){
+  .mc.highlight{background:#26215C}.mc.highlight .val{color:#CECBF6}.mc.highlight .lbl{color:#AFA9EC}.mc.highlight .sub{color:#7F77DD}
+  .mc.green{background:#04342C}.mc.green .val{color:#9FE1CB}.mc.green .lbl{color:#5DCAA5}.mc.green .sub{color:#1D9E75}
+  .mc.amber{background:#412402}.mc.amber .val{color:#FAC775}.mc.amber .lbl{color:#EF9F27}.mc.amber .sub{color:#BA7517}
+}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.card h3{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em}
+.pb-wrap{margin-bottom:10px}
+.pb-wrap .pb-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:5px}
+.pb{height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden}
+.pb .fill{height:100%;border-radius:3px;transition:width 0.5s}
+.badge{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.b-strength{background:#EEEDFE;color:#3C3489}
+.b-running{background:#E1F5EE;color:#085041}
+.b-hyrox{background:#FAEEDA;color:#633806}
+.b-ok{background:#EAF3DE;color:#27500A}
+.b-warn{background:#FAEEDA;color:#633806}
+@media(prefers-color-scheme:dark){
+  .b-strength{background:#26215C;color:#CECBF6}
+  .b-running{background:#04342C;color:#9FE1CB}
+  .b-hyrox{background:#412402;color:#FAC775}
+  .b-ok{background:#173404;color:#C0DD97}
+  .b-warn{background:#412402;color:#FAC775}
+}
+.pr-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.pr-row:last-child{border-bottom:none}
+.pr-name{font-size:14px;color:var(--color-text-primary)}
+.pr-meta{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.pr-val{font-size:15px;font-weight:500;color:var(--color-text-primary);text-align:right}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.three{grid-template-columns:1fr 1fr 1fr}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:12px;color:var(--color-text-secondary)}
+.fg input,.fg select{padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)}
+.btn{width:100%;padding:9px;background:var(--color-background-primary);border:0.5px solid var(--color-border-primary);border-radius:var(--border-radius-md);cursor:pointer;font-size:14px;font-weight:500;color:var(--color-text-primary);margin-top:8px}
+.btn:hover{background:var(--color-background-secondary)}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:8px}
+.log-main{font-size:14px;color:var(--color-text-primary);font-weight:500}
+.log-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.week-dots{display:flex;gap:6px;margin-bottom:1rem}
+.wd{flex:1;text-align:center}
+.dot{width:30px;height:30px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:11px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-tertiary);cursor:pointer}
+.dot.s{background:#EEEDFE;color:#3C3489;border-color:#534AB7;font-weight:500}
+.dot.r{background:#E1F5EE;color:#085041;border-color:#0F6E56;font-weight:500}
+.dot.h{background:#FAEEDA;color:#633806;border-color:#854F0B;font-weight:500}
+@media(prefers-color-scheme:dark){
+  .dot.s{background:#26215C;color:#CECBF6;border-color:#7F77DD}
+  .dot.r{background:#04342C;color:#9FE1CB;border-color:#1D9E75}
+  .dot.h{background:#412402;color:#FAC775;border-color:#EF9F27}
+}
+.dl{font-size:11px;color:var(--color-text-tertiary)}
+.countdown-ring{display:flex;align-items:center;gap:16px;padding:8px 0}
+.countdown-num{font-size:28px;font-weight:500;color:var(--color-text-primary)}
+.countdown-lbl{font-size:12px;color:var(--color-text-secondary)}
+.chart-wrap{position:relative;width:100%;height:200px}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:12px 0}
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+</style>
+
+<div class="app">
+<h2 class="sr-only">Hybrid Athlete Tracker — perfil personalizado de Bam</h2>
+
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem">
+  <div>
+    <p style="font-size:20px;font-weight:500;color:var(--color-text-primary)">Bam — Atleta Híbrido</p>
+    <p style="font-size:13px;color:var(--color-text-secondary)">Fuerza · Running · Hyrox · Melbourne DEC 2026</p>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:22px;font-weight:500;color:var(--color-text-primary)" id="countdown-days">—</div>
+    <div style="font-size:11px;color:var(--color-text-secondary)">días para Hyrox</div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="active" onclick="switchTab('dashboard',this)">Dashboard</button>
+  <button onclick="switchTab('workout',this)">Entreno</button>
+  <button onclick="switchTab('body',this)">Cuerpo</button>
+  <button onclick="switchTab('nutrition',this)">Nutrición</button>
+  <button onclick="switchTab('prs',this)">PRs</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div id="tab-dashboard" class="section active">
+
+  <div class="metric-grid">
+    <div class="mc highlight">
+      <div class="lbl">VO2 Max</div>
+      <div class="val">57</div>
+      <div class="sub">Excelente (32 años)</div>
+    </div>
+    <div class="mc green">
+      <div class="lbl">Media maratón PR</div>
+      <div class="val">1:39</div>
+      <div class="sub">Predicción: 1:40</div>
+    </div>
+    <div class="mc amber">
+      <div class="lbl">Peso actual</div>
+      <div class="val" id="dash-peso">63.9</div>
+      <div class="sub">Meta: 70–75 kg</div>
+    </div>
+    <div class="mc">
+      <div class="lbl">Masa muscular</div>
+      <div class="val">29.3</div>
+      <div class="sub">kg InBody Feb '25</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Esta semana</h3>
+    <div class="week-dots" id="week-display"></div>
+    <div class="pb-wrap">
+      <div class="pb-lbl"><span>Fuerza (objetivo 3 sesiones)</span><span id="prog-s-lbl">0/3</span></div>
+      <div class="pb"><div class="fill" id="fill-s" style="width:0%;background:#7F77DD"></div></div>
+    </div>
+    <div class="pb-wrap">
+      <div class="pb-lbl"><span>Running (objetivo 25 km)</span><span id="prog-r-lbl">0 / 25 km</span></div>
+      <div class="pb"><div class="fill" id="fill-r" style="width:0%;background:#1D9E75"></div></div>
+    </div>
+    <div class="pb-wrap">
+      <div class="pb-lbl"><span>Calorías promedio (meta 2800 kcal)</span><span id="prog-k-lbl">— / 2800</span></div>
+      <div class="pb"><div class="fill" id="fill-k" style="width:0%;background:#EF9F27"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Objetivos Melbourne DEC 2026</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:14px;color:var(--color-text-primary)">Hyrox Melbourne</div><div style="font-size:12px;color:var(--color-text-secondary)">Diciembre 2026 · Singles</div></div>
+        <span class="badge b-hyrox">Sub 60 min</span>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:14px;color:var(--color-text-primary)">Media maratón #1</div><div style="font-size:12px;color:var(--color-text-secondary)">Próxima carrera</div></div>
+        <span class="badge b-running">Sub 1:35</span>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:14px;color:var(--color-text-primary)">Media maratón #2</div><div style="font-size:12px;color:var(--color-text-secondary)">Segunda carrera</div></div>
+        <span class="badge b-running">Sub 1:32</span>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:14px;color:var(--color-text-primary)">Peso objetivo</div><div style="font-size:12px;color:var(--color-text-secondary)">+lean mass, no grasa</div></div>
+        <span class="badge b-strength">70–75 kg</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Últimos entrenamientos</h3>
+    <div id="recent-list"><p style="font-size:13px;color:var(--color-text-tertiary)">Sin entrenamientos aún. ¡Registra el primero!</p></div>
+  </div>
+</div>
+
+<!-- WORKOUT -->
+<div id="tab-workout" class="section">
+  <div class="card">
+    <h3>Registrar entreno</h3>
+    <div class="form-row">
+      <div class="fg"><label>Tipo</label>
+        <select id="w-type" onchange="toggleFields()">
+          <option value="strength">Fuerza</option>
+          <option value="running">Running</option>
+          <option value="hyrox">Hyrox / Simulacro</option>
+        </select>
+      </div>
+      <div class="fg"><label>Fecha</label><input type="date" id="w-date"></div>
+    </div>
+    <div id="sf">
+      <div class="form-row three">
+        <div class="fg"><label>Ejercicio</label><input type="text" id="w-ex" placeholder="Sentadilla, Peso muerto..."></div>
+        <div class="fg"><label>Series × Reps</label><input type="text" id="w-sets" placeholder="5×5"></div>
+        <div class="fg"><label>Peso (kg)</label><input type="number" id="w-kg" placeholder="100"></div>
+      </div>
+    </div>
+    <div id="rf" style="display:none">
+      <div class="form-row three">
+        <div class="fg"><label>Distancia (km)</label><input type="number" id="w-km" placeholder="12" step="0.1" oninput="calcPace()"></div>
+        <div class="fg"><label>Tiempo (min)</label><input type="number" id="w-min" placeholder="55" oninput="calcPace()"></div>
+        <div class="fg"><label>Ritmo (min/km)</label><input type="text" id="w-pace" readonly style="background:var(--color-background-secondary)" placeholder="—"></div>
+      </div>
+      <div class="fg" style="margin-bottom:10px"><label>Tipo de sesión</label>
+        <select id="w-run-type">
+          <option>Fácil (Z2)</option><option>Tempo</option><option>Intervalos</option><option>Long Run</option><option>Progresivo</option>
+        </select>
+      </div>
+    </div>
+    <div id="hf" style="display:none">
+      <div class="form-row">
+        <div class="fg"><label>Tiempo total (min)</label><input type="number" id="w-htime" placeholder="65"></div>
+        <div class="fg"><label>Categoría</label><select id="w-hcat"><option>Singles</option><option>Doubles</option><option>Relay</option></select></div>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:4px"><label>RPE (1–10) y notas</label><input type="text" id="w-notes" placeholder="RPE 7 · me sentí fuerte..."></div>
+    <button class="btn" onclick="saveWorkout()">Guardar entreno</button>
+  </div>
+  <div class="card">
+    <h3>Historial</h3>
+    <div id="w-history"><p style="font-size:13px;color:var(--color-text-tertiary)">Sin entrenamientos aún.</p></div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div id="tab-body" class="section">
+  <div class="card">
+    <h3>Línea base — InBody 06 Feb 2025</h3>
+    <div class="metric-grid">
+      <div class="mc"><div class="lbl">Peso</div><div class="val">63.9</div><div class="sub">kg</div></div>
+      <div class="mc"><div class="lbl">Masa muscular</div><div class="val">29.3</div><div class="sub">kg</div></div>
+      <div class="mc"><div class="lbl">% Grasa</div><div class="val">17.6</div><div class="sub">% (11.2 kg)</div></div>
+      <div class="mc"><div class="lbl">InBody score</div><div class="val">77</div><div class="sub">/100</div></div>
+    </div>
+    <div class="tag-row">
+      <span class="badge b-ok">Grasa visceral 4/10 ✓</span>
+      <span class="badge b-ok">TMB 1507 kcal</span>
+      <span class="badge b-ok">Agua 38.5 L ✓</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Registrar medición actual</h3>
+    <div class="form-row three">
+      <div class="fg"><label>Peso (kg)</label><input type="number" id="b-w" placeholder="65" step="0.1" oninput="calcLean()"></div>
+      <div class="fg"><label>% Grasa</label><input type="number" id="b-f" placeholder="16" step="0.1" oninput="calcLean()"></div>
+      <div class="fg"><label>Masa magra (calc.)</label><input type="text" id="b-lean" readonly style="background:var(--color-background-secondary)" placeholder="—"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Cintura (cm)</label><input type="number" id="b-waist" placeholder="75"></div>
+      <div class="fg"><label>Fecha</label><input type="date" id="b-date"></div>
+    </div>
+    <button class="btn" onclick="saveBody()">Guardar medición</button>
+  </div>
+
+  <div class="metric-grid" id="body-current" style="display:none">
+    <div class="mc highlight"><div class="lbl">Peso</div><div class="val" id="bc-w">—</div><div class="sub">kg</div></div>
+    <div class="mc green"><div class="lbl">Masa magra</div><div class="val" id="bc-lean">—</div><div class="sub">kg (+desde base)</div></div>
+    <div class="mc amber"><div class="lbl">% Grasa</div><div class="val" id="bc-fat">—</div><div class="sub">%</div></div>
+    <div class="mc"><div class="lbl">Progreso al objetivo</div><div class="val" id="bc-prog">—</div><div class="sub">kg para 70 kg</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Evolución de peso</h3>
+    <div class="chart-wrap"><canvas id="bodyChart" role="img" aria-label="Evolución del peso corporal">Registra mediciones para ver el gráfico.</canvas></div>
+  </div>
+</div>
+
+<!-- NUTRITION -->
+<div id="tab-nutrition" class="section">
+  <div class="card">
+    <h3>Tu perfil calórico (calculado)</h3>
+    <div class="metric-grid">
+      <div class="mc"><div class="lbl">TMB base</div><div class="val">1507</div><div class="sub">kcal/día</div></div>
+      <div class="mc green"><div class="lbl">TDEE estimado</div><div class="val">2600</div><div class="sub">kcal (activo)</div></div>
+      <div class="mc highlight"><div class="lbl">Meta volumen</div><div class="val">2900</div><div class="sub">kcal (+300 surplus)</div></div>
+      <div class="mc amber"><div class="lbl">Proteína meta</div><div class="val">175</div><div class="sub">g/día (2.2×kg meta)</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Registrar día</h3>
+    <div class="form-row">
+      <div class="fg"><label>Calorías totales</label><input type="number" id="n-kcal" placeholder="2900"></div>
+      <div class="fg"><label>Proteína (g)</label><input type="number" id="n-p" placeholder="175"></div>
+    </div>
+    <div class="form-row three">
+      <div class="fg"><label>Carbos (g)</label><input type="number" id="n-c" placeholder="350"></div>
+      <div class="fg"><label>Grasas (g)</label><input type="number" id="n-f" placeholder="90"></div>
+      <div class="fg"><label>Fecha</label><input type="date" id="n-date"></div>
+    </div>
+    <button class="btn" onclick="saveNutrition()">Guardar</button>
+  </div>
+
+  <div class="metric-grid">
+    <div class="mc"><div class="lbl">Kcal hoy</div><div class="val" id="nm-k">—</div></div>
+    <div class="mc"><div class="lbl">Proteína hoy</div><div class="val" id="nm-p">—</div><div class="sub">g</div></div>
+    <div class="mc"><div class="lbl">Promedio 7d</div><div class="val" id="nm-avg">—</div><div class="sub">kcal</div></div>
+    <div class="mc"><div class="lbl">Balance</div><div class="val" id="nm-bal">—</div><div class="sub">vs meta 2900</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Macros — últimos días</h3>
+    <div class="chart-wrap" style="height:180px"><canvas id="macroChart" role="img" aria-label="Distribución de macronutrientes">Registra días para ver el gráfico.</canvas></div>
+  </div>
+</div>
+
+<!-- PRs -->
+<div id="tab-prs" class="section">
+  <div class="card">
+    <h3>PRs Garmin — actuales</h3>
+    <div class="pr-row">
+      <div><div class="pr-name">5 km</div><div class="pr-meta">Ene 2025</div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="badge b-running">Running</span><div class="pr-val">20:21</div></div>
+    </div>
+    <div class="pr-row">
+      <div><div class="pr-name">10 km</div><div class="pr-meta">Sep 2025</div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="badge b-running">Running</span><div class="pr-val">42:39</div></div>
+    </div>
+    <div class="pr-row">
+      <div><div class="pr-name">Media maratón</div><div class="pr-meta">Ago 2025</div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="badge b-running">Running</span><div class="pr-val">1:39:02</div></div>
+    </div>
+    <div class="pr-row">
+      <div><div class="pr-name">1 km</div><div class="pr-meta">Jun 2025</div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="badge b-running">Running</span><div class="pr-val">3:41</div></div>
+    </div>
+    <div class="pr-row">
+      <div><div class="pr-name">1 milla</div><div class="pr-meta">Jun 2025</div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="badge b-running">Running</span><div class="pr-val">6:12</div></div>
+    </div>
+    <div style="margin-top:10px;padding:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">Predicciones Garmin (Abr 2026)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span class="badge b-ok">5K → 20:20</span>
+        <span class="badge b-ok">10K → 43:56</span>
+        <span class="badge b-ok">21K → 1:40:19</span>
+        <span class="badge b-ok">42K → 3:42:48</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Agregar nuevo PR</h3>
+    <div class="form-row">
+      <div class="fg"><label>Ejercicio / Prueba</label><input type="text" id="pr-name" placeholder="Peso muerto, Hyrox..."></div>
+      <div class="fg"><label>Categoría</label>
+        <select id="pr-type"><option value="strength">Fuerza</option><option value="running">Running</option><option value="hyrox">Hyrox</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Valor</label><input type="text" id="pr-val" placeholder="160 kg / 1:35:00 / 58 min"></div>
+      <div class="fg"><label>Fecha</label><input type="date" id="pr-date"></div>
+    </div>
+    <button class="btn" onclick="savePR()">Guardar PR</button>
+    <div id="pr-extra" style="margin-top:12px"></div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const S = { workouts:[], body:[], nutrition:[], prs:[] };
+const today = new Date().toISOString().split('T')[0];
+['w-date','b-date','n-date','pr-date'].forEach(id => { const el = document.getElementById(id); if(el) el.value = today; });
+
+// Countdown to Dec 6 2026 Hyrox Melbourne
+const hyroxDate = new Date('2026-12-06');
+const daysLeft = Math.ceil((hyroxDate - new Date()) / 86400000);
+document.getElementById('countdown-days').textContent = daysLeft;
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='body') renderBodyChart();
+  if(tab==='nutrition') renderMacroChart();
+}
+
+function toggleFields() {
+  const t = document.getElementById('w-type').value;
+  document.getElementById('sf').style.display = t==='strength' ? '' : 'none';
+  document.getElementById('rf').style.display = t==='running' ? '' : 'none';
+  document.getElementById('hf').style.display = t==='hyrox' ? '' : 'none';
+}
+
+function calcPace() {
+  const km = parseFloat(document.getElementById('w-km').value);
+  const min = parseFloat(document.getElementById('w-min').value);
+  if(km > 0 && min > 0) {
+    const p = min/km, m = Math.floor(p), s = Math.round((p-m)*60);
+    document.getElementById('w-pace').value = m + ':' + String(s).padStart(2,'0');
+  }
+}
+
+function calcLean() {
+  const w = parseFloat(document.getElementById('b-w').value);
+  const f = parseFloat(document.getElementById('b-f').value);
+  if(w > 0 && f > 0) document.getElementById('b-lean').value = (w*(1-f/100)).toFixed(1) + ' kg';
+}
+
+function saveWorkout() {
+  const type = document.getElementById('w-type').value;
+  const date = document.getElementById('w-date').value;
+  const notes = document.getElementById('w-notes').value;
+  let detail='', km=0, vol=0;
+  if(type==='strength') {
+    const ex = document.getElementById('w-ex').value || 'Ejercicio';
+    const sets = document.getElementById('w-sets').value || '';
+    const kg = parseFloat(document.getElementById('w-kg').value)||0;
+    if(sets) { const p=sets.split('×'); if(p.length===2) vol=(parseFloat(p[0])||0)*(parseFloat(p[1])||0)*kg; }
+    detail = ex + (sets?' '+sets:'') + (kg?' @ '+kg+'kg':'');
+  } else if(type==='running') {
+    km = parseFloat(document.getElementById('w-km').value)||0;
+    const min = document.getElementById('w-min').value;
+    const pace = document.getElementById('w-pace').value;
+    const rt = document.getElementById('w-run-type').value;
+    detail = rt + ' · ' + km + ' km' + (pace?' @ '+pace+'/km':'');
+  } else {
+    const ht = document.getElementById('w-htime').value;
+    const hc = document.getElementById('w-hcat').value;
+    detail = 'Hyrox ' + hc + (ht?' · '+ht+' min':'');
+  }
+  S.workouts.unshift({type,detail,notes,date,km,vol});
+  updateDashboard(); renderHistory();
+  showToast('Entreno guardado ✓');
+}
+
+function saveBody() {
+  const w = parseFloat(document.getElementById('b-w').value);
+  if(!w){alert('Ingresa tu peso');return;}
+  const f = parseFloat(document.getElementById('b-f').value)||0;
+  const waist = document.getElementById('b-waist').value;
+  const date = document.getElementById('b-date').value;
+  const lean = w*(1-f/100);
+  S.body.unshift({w,f,waist,date,lean});
+  const el = document.getElementById('body-current');
+  el.style.display = 'grid';
+  document.getElementById('bc-w').textContent = w.toFixed(1);
+  document.getElementById('bc-lean').textContent = lean.toFixed(1);
+  document.getElementById('bc-fat').textContent = f.toFixed(1);
+  const diff = (70 - w).toFixed(1);
+  document.getElementById('bc-prog').textContent = diff > 0 ? '+'+diff : diff;
+  document.getElementById('dash-peso').textContent = w.toFixed(1);
+  renderBodyChart();
+  showToast('Medición guardada ✓');
+}
+
+function saveNutrition() {
+  const kcal = parseInt(document.getElementById('n-kcal').value);
+  if(!kcal){alert('Ingresa las calorías');return;}
+  const p = parseInt(document.getElementById('n-p').value)||0;
+  const c = parseInt(document.getElementById('n-c').value)||0;
+  const f = parseInt(document.getElementById('n-f').value)||0;
+  const date = document.getElementById('n-date').value;
+  const idx = S.nutrition.findIndex(n=>n.date===date);
+  if(idx>=0) S.nutrition[idx]={kcal,p,c,f,date}; else S.nutrition.unshift({kcal,p,c,f,date});
+  updateNutrition(); updateDashboard(); renderMacroChart();
+  showToast('Nutrición guardada ✓');
+}
+
+function savePR() {
+  const name = document.getElementById('pr-name').value;
+  const type = document.getElementById('pr-type').value;
+  const val = document.getElementById('pr-val').value;
+  const date = document.getElementById('pr-date').value;
+  if(!name||!val){alert('Completa nombre y valor');return;}
+  S.prs.unshift({name,type,val,date});
+  const el = document.getElementById('pr-extra');
+  el.innerHTML = S.prs.map(pr=>`
+    <div class="pr-row">
+      <div><div class="pr-name">${pr.name}</div><div class="pr-meta">${pr.date}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="badge b-${pr.type}">${pr.type==='strength'?'Fuerza':pr.type==='running'?'Running':'Hyrox'}</span>
+        <div class="pr-val">${pr.val}</div>
+      </div>
+    </div>`).join('');
+  showToast('PR guardado ✓');
+}
+
+function getWeekWorkouts() {
+  const now = new Date(), day = now.getDay()===0?6:now.getDay()-1;
+  const mon = new Date(now); mon.setDate(now.getDate()-day);
+  const monStr = mon.toISOString().split('T')[0];
+  return S.workouts.filter(w=>w.date>=monStr);
+}
+
+function updateDashboard() {
+  const week = getWeekWorkouts();
+  const sc = week.filter(w=>w.type==='strength').length;
+  const rkm = week.filter(w=>w.type==='running').reduce((s,w)=>s+w.km,0);
+  document.getElementById('prog-s-lbl').textContent = sc+'/3';
+  document.getElementById('fill-s').style.width = Math.min(100,(sc/3)*100)+'%';
+  document.getElementById('prog-r-lbl').textContent = rkm.toFixed(1)+' / 25 km';
+  document.getElementById('fill-r').style.width = Math.min(100,(rkm/25)*100)+'%';
+  const r7 = S.nutrition.slice(0,7);
+  if(r7.length) {
+    const avg = Math.round(r7.reduce((s,n)=>s+n.kcal,0)/r7.length);
+    document.getElementById('prog-k-lbl').textContent = avg+' / 2800';
+    document.getElementById('fill-k').style.width = Math.min(100,(avg/2800)*100)+'%';
+  }
+  renderWeekDots(week);
+  renderRecentWorkouts();
+}
+
+function renderWeekDots(week) {
+  const days=['L','M','X','J','V','S','D'];
+  const now=new Date(), dow=now.getDay()===0?6:now.getDay()-1;
+  const mon=new Date(now); mon.setDate(now.getDate()-dow);
+  document.getElementById('week-display').innerHTML = days.map((d,i)=>{
+    const dt=new Date(mon); dt.setDate(mon.getDate()+i);
+    const ds=dt.toISOString().split('T')[0];
+    const wo=week.find(w=>w.date===ds);
+    const cls=wo?{strength:'s',running:'r',hyrox:'h'}[wo.type]:'';
+    const sym=wo?{strength:'F',running:'R',hyrox:'H'}[wo.type]:d;
+    return `<div class="wd"><div class="dot ${cls}">${sym}</div><div class="dl">${d}</div></div>`;
+  }).join('');
+}
+
+function renderRecentWorkouts() {
+  const el = document.getElementById('recent-list');
+  if(!S.workouts.length){ el.innerHTML='<p style="font-size:13px;color:var(--color-text-tertiary)">Sin entrenamientos aún. ¡Registra el primero!</p>'; return; }
+  el.innerHTML = S.workouts.slice(0,4).map(w=>`
+    <div class="log-item">
+      <div><div class="log-main">${w.detail}</div>${w.notes?'<div class="log-sub">'+w.notes+'</div>':''}</div>
+      <div style="text-align:right">
+        <span class="badge b-${w.type}">${w.type==='strength'?'Fuerza':w.type==='running'?'Running':'Hyrox'}</span>
+        <div class="log-sub" style="margin-top:4px">${w.date}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderHistory() {
+  const el = document.getElementById('w-history');
+  if(!S.workouts.length){ el.innerHTML='<p style="font-size:13px;color:var(--color-text-tertiary)">Sin entrenamientos aún.</p>'; return; }
+  el.innerHTML = S.workouts.slice(0,15).map(w=>`
+    <div class="log-item">
+      <div><div class="log-main">${w.detail}</div>${w.notes?'<div class="log-sub">'+w.notes+'</div>':''}</div>
+      <div style="text-align:right">
+        <span class="badge b-${w.type}">${w.type==='strength'?'Fuerza':w.type==='running'?'Running':'Hyrox'}</span>
+        <div class="log-sub" style="margin-top:4px">${w.date}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateNutrition() {
+  if(!S.nutrition.length) return;
+  const l = S.nutrition[0];
+  document.getElementById('nm-k').textContent = l.kcal;
+  document.getElementById('nm-p').textContent = l.p || '—';
+  const avg = Math.round(S.nutrition.slice(0,7).reduce((s,n)=>s+n.kcal,0)/Math.min(7,S.nutrition.length));
+  document.getElementById('nm-avg').textContent = avg;
+  const bal = l.kcal - 2900;
+  document.getElementById('nm-bal').textContent = (bal>=0?'+':'')+bal;
+}
+
+let bChart=null, mChart=null;
+function renderBodyChart() {
+  const canvas = document.getElementById('bodyChart');
+  const base = {w:63.9, date:'2025-02-06'};
+  const data = [base, ...S.body.slice().reverse().map(b=>({w:b.w,date:b.date}))];
+  if(data.length < 2) return;
+  const labels = data.map(d=>d.date.slice(5));
+  const weights = data.map(d=>d.w);
+  if(bChart) bChart.destroy();
+  bChart = new Chart(canvas, {
+    type:'line',
+    data:{ labels, datasets:[{ label:'Peso (kg)', data:weights, borderColor:'#7F77DD', backgroundColor:'rgba(127,119,221,0.06)', tension:0.3, fill:true, pointRadius:5 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, annotation:{} },
+      scales:{ y:{ min:60, max:77, ticks:{ callback:v=>v+'kg' } } }
+    }
+  });
+}
+
+function renderMacroChart() {
+  const canvas = document.getElementById('macroChart');
+  if(!S.nutrition.length) return;
+  const d = S.nutrition.slice(0,7).reverse();
+  const labels = d.map(n=>n.date.slice(5));
+  if(mChart) mChart.destroy();
+  mChart = new Chart(canvas, {
+    type:'bar',
+    data:{ labels, datasets:[
+      {label:'Proteína',data:d.map(n=>n.p||0),backgroundColor:'#7F77DD'},
+      {label:'Carbos',data:d.map(n=>n.c||0),backgroundColor:'#1D9E75'},
+      {label:'Grasas',data:d.map(n=>n.f||0),backgroundColor:'#EF9F27'}
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ boxWidth:10, font:{size:11} } } }
+    }
+  });
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3C3489;color:#CECBF6;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;transition:opacity 0.3s'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  setTimeout(()=>{ t.style.opacity='0'; },2000);
+}
+
+updateDashboard();
+</script>
